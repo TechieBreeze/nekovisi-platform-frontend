@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
@@ -18,5 +19,10 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     port: 5173,
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 })
