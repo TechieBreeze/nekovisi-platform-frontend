@@ -1,14 +1,15 @@
 import { NavLink } from 'react-router-dom'
-import { Trophy, Settings } from 'lucide-react'
+import { ClipboardList, Trophy, Settings } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/admin/contests', label: '赛事管理', icon: Trophy, end: false },
-  // 其他模块占位;MVP 只放赛事管理
+  { to: '/admin/registration-forms', label: '报名表', icon: ClipboardList, end: false },
+  // 其他模块占位;MVP 只放赛事 + 报名表
   { to: '#', label: '系统设置(待启用)', icon: Settings, end: false, disabled: true },
 ] as const
 
 /**
- * 左侧导航。当前 MVP 只有"赛事管理"一项,其他模块占位但 disabled,
+ * 左侧导航。MVP 含"赛事管理" + "报名表"两项;其他模块占位但 disabled,
  * 避免后续塞菜单时再次打扰用户(并保持视觉节奏一致)。
  */
 export default function Sidebar() {

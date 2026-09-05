@@ -12,18 +12,24 @@ import ContestListPage from '@/modules/contest/pages/ContestListPage'
 import ContestCreatePage from '@/modules/contest/pages/ContestCreatePage'
 import ContestDetailPage from '@/modules/contest/pages/ContestDetailPage'
 import ContestEditPage from '@/modules/contest/pages/ContestEditPage'
+import RegistrationFormListPage from '@/modules/registration/pages/RegistrationFormListPage'
+import RegistrationFormCreatePage from '@/modules/registration/pages/RegistrationFormCreatePage'
+import RegistrationFormDetailPage from '@/modules/registration/pages/RegistrationFormDetailPage'
 
 /**
  * 路由表
  *
- * /login          公开
- * /admin/*        RequireAuth + RequireRole(SUPER_ADMIN)
- *   /contests     列表
- *   /contests/new 新建
- *   /contests/:id 详情(含状态机)
- *   /contests/:id/edit 编辑
- * /               → /admin/contests
- * *               404 占位
+ * /login                              公开
+ * /admin/*                            RequireAuth + RequireRole(SUPER_ADMIN)
+ *   /contests                         列表
+ *   /contests/new                     新建
+ *   /contests/:id                     详情(含状态机)
+ *   /contests/:id/edit                编辑
+ *   /registration-forms               列表
+ *   /registration-forms/new           新建(走模板)
+ *   /registration-forms/:id           详情(含字段编辑 + 记录 grid)
+ * /                                   → /admin/contests
+ * *                                   404 占位
  */
 export default function App() {
   return (
@@ -48,6 +54,9 @@ export default function App() {
           <Route path="contests/new" element={<ContestCreatePage />} />
           <Route path="contests/:id" element={<ContestDetailPage />} />
           <Route path="contests/:id/edit" element={<ContestEditPage />} />
+          <Route path="registration-forms" element={<RegistrationFormListPage />} />
+          <Route path="registration-forms/new" element={<RegistrationFormCreatePage />} />
+          <Route path="registration-forms/:id" element={<RegistrationFormDetailPage />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/admin/contests" replace />} />
