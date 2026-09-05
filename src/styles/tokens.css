@@ -1,0 +1,50 @@
+/* ==========================================================================
+ * Nekovisi Design Tokens
+ *
+ * 这个文件存的是项目自有、不在 shadcn 主题里的语义性 token。
+ * Tailwind / shadcn 的颜色 / 圆角 / 字体都走它们自己的变量系统;
+ * 这里只补两件事:
+ *   1. 赛事状态机的 7 色(后端 ContestStatus 枚举一一对应)
+ *   2. 自研组件用的间距 / 动效曲线
+ *
+ * 命名约定:
+ *   --contest-status-<name>:  状态色(前景 / 背景 / 边框)
+ *   --motion-<name>:          动效曲线 / 时长
+ *   --spacing-<name>:         模块内部专用间距
+ * ========================================================================== */
+
+:root {
+  /* ---- 赛事状态机(对齐后端 ContestStatus 7 个枚举值) ---- */
+  --contest-status-planning-fg: oklch(45% 0.10 250);
+  --contest-status-planning-bg: oklch(92% 0.05 250);
+
+  --contest-status-ready-fg: oklch(40% 0.10 195);
+  --contest-status-ready-bg: oklch(94% 0.05 195);
+
+  --contest-status-running-fg: oklch(40% 0.15 145);
+  --contest-status-running-bg: oklch(94% 0.08 145);
+
+  --contest-status-frozen-fg: oklch(40% 0.12 230);
+  --contest-status-frozen-bg: oklch(94% 0.06 230);
+
+  --contest-status-ended-fg: oklch(35% 0 0);
+  --contest-status-ended-bg: oklch(90% 0 0);
+
+  --contest-status-archiving-fg: oklch(40% 0.12 65);
+  --contest-status-archiving-bg: oklch(94% 0.06 65);
+
+  --contest-status-archived-fg: oklch(60% 0 0);
+  --contest-status-archived-bg: oklch(88% 0 0);
+
+  /* ---- 动效 ---- */
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-slow: 320ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- 模块内部专用间距(不是 Tailwind 主题的一部分) ---- */
+  --spacing-form-field: 1.25rem;        /* 表单字段间距 */
+  --spacing-page-gutter: 1.5rem;        /* 页面外边距 */
+  --spacing-card-pad: 1.25rem;          /* card 内边距 */
+}

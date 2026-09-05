@@ -1,0 +1,35 @@
+# ===== Node / 包管理 =====
+node_modules/
+.pnpm-store/
+
+# ===== 构建产物(容器内重建)=====
+dist/
+.vite/
+*.tsbuildinfo
+
+# ===== 本地环境 =====
+.env
+.env.local
+.env.*.local
+
+# ===== 日志 =====
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== IDE / 编辑器 =====
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ===== 测试 / 覆盖率 =====
+coverage/
+.nyc_output/
+
+# ===== Git =====
+.git/
+.gitignore
