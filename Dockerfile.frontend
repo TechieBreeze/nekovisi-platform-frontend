@@ -1,0 +1,103 @@
+# ==============================================================================
+# Stage 1 — build
+# 装 pnpm → pnpm install → pnpm build → 产物在 /app/dist
+# ==============================================================================
+FROM node:20-alpine AS builder
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@8.9.2 --activate
+
+WORKDIR /app
+
+# 先 copy lockfile + package.json,利用 Docker 缓存
+COPY package.json pnpm-lock.yaml ./
+
+# 只装 prod 依赖 + 跑 build;CI/Release 用 prod 模式即可
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+# Vite 在 build 时把 VITE_API_BASE_URL 注入到 bundle,build-arg 传入
+ARG VITE_API_BASE_URL=http://localhost:8080
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+RUN pnpm build
+
+# ==============================================================================
+# Stage 2 — serve
+# nginx:alpine 服务静态资源 + 兜底所有路由到 index.html(SPA)
+# ==============================================================================
+FROM nginx:1.27-alpine AS runtime
+
+# 容器内非 root 用户不能写 nginx 默认路径(/var/cache/nginx 需要 root),
+# 改写到 /home/nekovisi(同 backend Dockerfile 约定)。
+ENV NGINX_USER=nekovisi
+RUN addgroup -S nekovisi 2>/dev/null || true \
+    && adduser -S nekovisi -G nekovisi 2>/dev/null || true \
+    && mkdir -p /home/nekovisi/nginx /home/nekovisi/cache /home/nekovisi/logs \
+    && chown -R nekovisi:nekovisi /home/nekovisi \
+    && touch /var/run/nginx.pid && chown nekovisi:nekovisi /var/run/nginx.pid
+
+# 自定义 nginx.conf:SPAs 兜底 + 非 root 用户
+COPY <<'EOF' /etc/nginx/nginx.conf
+user nekovisi;
+worker_processes auto;
+error_log /home/nekovisi/logs/error.log warn;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout 65;
+    client_max_body_size 10m;
+
+    access_log /home/nekovisi/logs/access.log;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml image/svg+xml;
+    gzip_min_length 1024;
+
+    server {
+        listen 8080;
+        server_name _;
+        root /home/nekovisi/nginx;
+        index index.html;
+
+        # SPA 兜底:所有非 /assets 路径回 index.html
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # 静态资源长缓存(文件名带 hash)
+        location /assets/ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            access_log off;
+        }
+
+        # 健康检查
+        location /healthz {
+            access_log off;
+            return 200 "ok\n";
+        }
+    }
+}
+EOF
+
+# 复制 Vite 产物到 nginx 根
+COPY --from=builder --chown=nekovisi:nekovisi /app/dist /home/nekovisi/nginx
+
+USER nekovisi
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -q -O - http://127.0.0.1:8080/healthz || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
