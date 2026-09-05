@@ -32,3 +32,8 @@ dist-ssr
 
 # ===== TypeScript cache =====
 *.tsbuildinfo
+
+# ===== E2E artifacts (Playwright) =====
+test-results/
+playwright-report/
+screenshots/
